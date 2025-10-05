@@ -1,13 +1,14 @@
 ﻿using StudyRoom.Models;
 using StudyRoom.PageModels;
+using Microsoft.Maui.Controls;
 
 namespace StudyRoom.Pages;
 
 public partial class MainPage : ContentPage
 {
-    public MainPage(MainPageModel model)
+    public MainPage()
     {
         InitializeComponent();
-        BindingContext = model;
+        BindingContext = new PomodoroViewModel();
     }
 }

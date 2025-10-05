@@ -1,85 +1,72 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
-<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
-             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-             xmlns:pageModels="clr-namespace:StudyRoom.PageModels"             
-             xmlns:models="clr-namespace:StudyRoom.Models"
-             xmlns:controls="clr-namespace:StudyRoom.Pages.Controls"
-             xmlns:pullToRefresh="clr-namespace:Syncfusion.Maui.Toolkit.PullToRefresh;assembly=Syncfusion.Maui.Toolkit"
-             xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
-             x:Class="StudyRoom.Pages.MainPage"
-             x:DataType="pageModels:MainPageModel"
-             Title="{Binding Today}">
+<ContentPage
+    x:Class="StudyRoom.MainPage"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d"
+    BackgroundColor="{DynamicResource PageBackgroundColor}"
+    Padding="20">
 
-    <ContentPage.Behaviors>
-        <toolkit:EventToCommandBehavior
-                EventName="NavigatedTo"
-                Command="{Binding NavigatedToCommand}" />
-        <toolkit:EventToCommandBehavior
-                EventName="NavigatedFrom"
-                Command="{Binding NavigatedFromCommand}" />
-        <toolkit:EventToCommandBehavior
-                EventName="Appearing"                
-                Command="{Binding AppearingCommand}" />
-    </ContentPage.Behaviors>
+    <ScrollView>
+        <VerticalStackLayout Spacing="16">
 
-    <ContentPage.Resources>
-        <ResourceDictionary>
-            <toolkit:InvertedBoolConverter x:Key="InvertedBoolConverter" />
-        </ResourceDictionary>
-    </ContentPage.Resources>
+            <Label Text="Study Room — Pomodoro"
+                   FontSize="24"
+                   HorizontalOptions="Center" />
 
-    <Grid>
-        <pullToRefresh:SfPullToRefresh
-            IsRefreshing="{Binding IsRefreshing}"
-            RefreshCommand="{Binding RefreshCommand}">
-            <pullToRefresh:SfPullToRefresh.PullableContent>
-                <ScrollView>
-                    <VerticalStackLayout Spacing="{StaticResource LayoutSpacing}" Padding="{StaticResource LayoutPadding}">
-                        <controls:CategoryChart />
-                        <Label Text="Projects" Style="{StaticResource Title2}"/>
-                        <ScrollView Orientation="Horizontal" Margin="-30,0">
-                            <HorizontalStackLayout 
-                                Spacing="15" Padding="30,0"
-                                BindableLayout.ItemsSource="{Binding Projects}">
-                                <BindableLayout.ItemTemplate>
-                                    <DataTemplate x:DataType="models:Project">
-                                        <controls:ProjectCardView WidthRequest="200">
-                                            <controls:ProjectCardView.GestureRecognizers>
-                                                <TapGestureRecognizer Command="{Binding NavigateToProjectCommand, Source={RelativeSource AncestorType={x:Type pageModels:MainPageModel}}, x:DataType=pageModels:MainPageModel}" CommandParameter="{Binding .}"/>
-                                            </controls:ProjectCardView.GestureRecognizers>
-                                        </controls:ProjectCardView>
-                                    </DataTemplate>
-                                </BindableLayout.ItemTemplate>
-                            </HorizontalStackLayout>
-                        </ScrollView>
-                        <Grid HeightRequest="44">
-                            <Label Text="Tasks" Style="{StaticResource Title2}" VerticalOptions="Center"/>
-                            <ImageButton 
-                                Source="{StaticResource IconClean}"
-                                HorizontalOptions="End"
-                                VerticalOptions="Center"
-                                Aspect="Center"
-                                HeightRequest="44"
-                                WidthRequest="44"
-                                IsVisible="{Binding HasCompletedTasks}"
-                                Command="{Binding CleanTasksCommand}"
-                                />
-                        </Grid>
-                        <VerticalStackLayout Spacing="15"
-                            BindableLayout.ItemsSource="{Binding Tasks}">
-                            <BindableLayout.ItemTemplate>
-                                <DataTemplate>
-                                    <controls:TaskView TaskCompletedCommand="{Binding TaskCompletedCommand, Source={RelativeSource AncestorType={x:Type pageModels:MainPageModel}}, x:DataType=pageModels:MainPageModel}" />
-                                </DataTemplate>
-                            </BindableLayout.ItemTemplate>
-                        </VerticalStackLayout>
-                    </VerticalStackLayout>
-                </ScrollView>
-            </pullToRefresh:SfPullToRefresh.PullableContent>
-        </pullToRefresh:SfPullToRefresh>
+            <Frame Padding="20" CornerRadius="20" HasShadow="True">
+                <VerticalStackLayout Spacing="6" HorizontalOptions="Center">
+                    <Label Text="{Binding CurrentStateLabel}"
+                           FontSize="18"
+                           TextColor="{DynamicResource Primary}"
+                           HorizontalOptions="Center" />
+                    <Label Text="{Binding TimeLeftDisplay}"
+                           FontSize="64"
+                           FontAttributes="Bold"
+                           HorizontalOptions="Center" />
+                    <ProgressBar Progress="{Binding Progress}" HeightRequest="6" />
+                    <Label Text="{Binding CycleLabel}" FontSize="12" Opacity="0.7" HorizontalOptions="Center"/>
+                </VerticalStackLayout>
+            </Frame>
 
-        <controls:AddButton 
-            IsEnabled="{Binding IsBusy, Converter={StaticResource InvertedBoolConverter}}"
-            Command="{Binding AddTaskCommand}" />
-    </Grid>
+            <Grid ColumnDefinitions="*,*,*" ColumnSpacing="12">
+                <Button Grid.Column="0" Text="{Binding StartPauseButtonText}" Command="{Binding StartPauseCommand}" />
+                <Button Grid.Column="1" Text="Reset" Command="{Binding ResetCommand}" />
+                <Button Grid.Column="2" Text="Skip" Command="{Binding SkipCommand}" />
+            </Grid>
+
+            <Grid ColumnDefinitions="*,*,*" ColumnSpacing="12">
+                <Button Grid.Column="0" Text="Focus" Command="{Binding SetFocusCommand}" />
+                <Button Grid.Column="1" Text="Short Break" Command="{Binding SetShortBreakCommand}" />
+                <Button Grid.Column="2" Text="Long Break" Command="{Binding SetLongBreakCommand}" />
+            </Grid>
+
+            <Frame Padding="16" CornerRadius="16" HasShadow="True">
+                <VerticalStackLayout Spacing="12">
+                    <Label Text="Durations (minutes)" FontAttributes="Bold" />
+                    <Grid ColumnDefinitions="2*,*,auto" RowDefinitions="Auto,Auto,Auto" ColumnSpacing="10" RowSpacing="8">
+                        <Label Grid.Row="0" Grid.Column="0" Text="Focus" VerticalTextAlignment="Center" />
+                        <Entry Grid.Row="0" Grid.Column="1" Text="{Binding FocusMinutes}" Keyboard="Numeric" />
+                        <Stepper Grid.Row="0" Grid.Column="2" Minimum="1" Maximum="180" Increment="1"
+                                 Value="{Binding FocusMinutes}" />
+
+                        <Label Grid.Row="1" Grid.Column="0" Text="Short Break" VerticalTextAlignment="Center" />
+                        <Entry Grid.Row="1" Grid.Column="1" Text="{Binding ShortBreakMinutes}" Keyboard="Numeric" />
+                        <Stepper Grid.Row="1" Grid.Column="2" Minimum="1" Maximum="60" Increment="1"
+                                 Value="{Binding ShortBreakMinutes}" />
+
+                        <Label Grid.Row="2" Grid.Column="0" Text="Long Break" VerticalTextAlignment="Center" />
+                        <Entry Grid.Row="2" Grid.Column="1" Text="{Binding LongBreakMinutes}" Keyboard="Numeric" />
+                        <Stepper Grid.Row="2" Grid.Column="2" Minimum="1" Maximum="120" Increment="1"
+                                 Value="{Binding LongBreakMinutes}" />
+                    </Grid>
+                    <Label Text="Tip: After every 4 focus sessions, you’ll get a long break automatically."
+                           FontSize="12" Opacity="0.7"/>
+                </VerticalStackLayout>
+            </Frame>
+
+        </VerticalStackLayout>
+    </ScrollView>
 </ContentPage>
